@@ -21,7 +21,13 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
+    <view
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/container"
+        android:visibility="gone">
 
+    </view>
 </android.support.v4.widget.DrawerLayout>
 
 
@@ -32,8 +38,7 @@
 <!--android:id="@+id/main_content"-->
 <!--android:layout_width="match_parent"-->
 <!--android:layout_height="match_parent"-->
-<!--android:fitsSystemWindows="true"-->
-<!--tools:context="com.example.utkarshnath.atry.Main2Activity">-->
+<!--android:fitsSystemWindows="true">-->
 
 <!--<android.support.design.widget.AppBarLayout-->
     <!--android:id="@+id/appbar"-->
@@ -60,5 +65,16 @@
     <!--android:layout_height="match_parent"-->
     <!--app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
 
-
+<!--<view-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:id="@+id/drawer_layout"-->
+    <!--android:visibility="gone">-->
+<!--</view>-->
+<!--<view-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:id="@+id/nav_view"-->
+    <!--android:visibility="gone">-->
+<!--</view>-->
 <!--</android.support.design.widget.CoordinatorLayout>-->

@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setSupportActionBar(toolbar);
 //            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 //            toggle.setDrawerIndicatorEnabled(false);
-//            mSectionsPagerAdapter = new NavigationPagerAdapter(getSupportFragmentManager());
-//            mViewPager = (ViewPager) findViewById(R.id.container);
-//            mViewPager.setAdapter(mSectionsPagerAdapter);
+            mSectionsPagerAdapter = new NavigationPagerAdapter(getSupportFragmentManager());
+            mViewPager = (ViewPager) findViewById(R.id.container);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
         }else {
             Toast.makeText(this,"Its Navigation bar",Toast.LENGTH_SHORT).show();
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
