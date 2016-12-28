@@ -49,19 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this, "Its Sliding Tabs", Toast.LENGTH_SHORT).show();
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
-<<<<<<< HEAD
-/*            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            toggle.setDrawerIndicatorEnabled(false);*/
-            try {
-                mSectionsPagerAdapter = new NavigationPagerAdapter(getSupportFragmentManager());
-                mViewPager = (ViewPager) findViewById(R.id.container);
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        } else {
-            Toast.makeText(this, "Its Navigation bar", Toast.LENGTH_SHORT).show();
-=======
+
 //            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 //            toggle.setDrawerIndicatorEnabled(false);
             mSectionsPagerAdapter = new NavigationPagerAdapter(getSupportFragmentManager());
@@ -69,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mViewPager.setAdapter(mSectionsPagerAdapter);
         }else {
             Toast.makeText(this,"Its Navigation bar",Toast.LENGTH_SHORT).show();
->>>>>>> bf041182d877de218b103aabad7d33978f7abd62
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
