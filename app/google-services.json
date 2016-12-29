@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1053470720547",
+    "project_id": "firebase-auto-android"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053470720547:android:c986a89e2bbf68f5",
+        "android_client_info": {
+          "package_name": "com.developer.sparsh.baseapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053470720547-h54li1oobgbijqfp5plhg52s1phsu2ph.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.developer.sparsh.baseapplication",
+            "certificate_hash": "FF70AE84B3115F6B93CB3B06EB87D68B69D015BE"
+          }
+        },
+        {
+          "client_id": "1053470720547-tlm5b0uuv1dt0d3ljumllva2utg6ot56.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBb64fXsPAWSQCDHRGgaHdR9I0cao3aOco"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

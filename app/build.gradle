@@ -1,8 +1,26 @@
-apply plugin: 'com.android.application'
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
 
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
+    repositories {
+        mavenCentral()
+    }
     defaultConfig {
         applicationId "com.developer.sparsh.baseapplication"
         minSdkVersion 19
@@ -20,6 +38,7 @@ android {
     sourceSets { main { res.srcDirs = ['src/main/res', 'src/main/res/menu'] } }
 }
 
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -28,5 +47,12 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.google.android.gms:play-services-auth:9.0.0'
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     testCompile 'junit:junit:4.12'
+    compile('com.twitter.sdk.android:twitter:2.3.1@aar') {
+        transitive = true;
+    }
+
+
 }
