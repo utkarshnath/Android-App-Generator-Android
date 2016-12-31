@@ -23,7 +23,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private Boolean slidingTabPresent;
@@ -45,10 +45,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             e.printStackTrace();
         }
 
-        if(slidingTabPresent) {
-            Toast.makeText(this,"Its Sliding Tabs",Toast.LENGTH_SHORT).show();
+        if (slidingTabPresent) {
+            Toast.makeText(this, "Its Sliding Tabs", Toast.LENGTH_SHORT).show();
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
+
 //            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 //            toggle.setDrawerIndicatorEnabled(false);
             mSectionsPagerAdapter = new NavigationPagerAdapter(getSupportFragmentManager());
@@ -73,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public String readJsonFile(String filename){
-        try{
+    public String readJsonFile(String filename) {
+        try {
             InputStream inputStream = this.getAssets().open(filename);
             int size = inputStream.available();
 
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             inputStream.read(buffer);
             inputStream.close();
 
-            return new String(buffer,"UTF-8");
+            return new String(buffer, "UTF-8");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,13 +99,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_feed) {
             Feed_Fragment feed_fragment = new Feed_Fragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,feed_fragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, feed_fragment).commit();
         } else if (id == R.id.nav_invitees) {
             Invities_Fragment invities_fragment = new Invities_Fragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,invities_fragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, invities_fragment).commit();
         } else if (id == R.id.nav_event_info) {
             Event_Info_Fragment event_info_fragment = new Event_Info_Fragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,event_info_fragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, event_info_fragment).commit();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
