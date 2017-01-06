@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this, "Its Sliding Tabs", Toast.LENGTH_SHORT).show();
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
-
 //            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 //            toggle.setDrawerIndicatorEnabled(false);
             mSectionsPagerAdapter = new NavigationPagerAdapter(getSupportFragmentManager());
