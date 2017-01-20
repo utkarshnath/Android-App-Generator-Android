@@ -2,13 +2,65 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:id="@+id/fragment_feed_framelayout"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     tools:context="com.developer.sparsh.baseapplication.Fragments.Feed_Fragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize="100dp"
-        android:text="Its Feed Fragment" />
+        android:id="@+id/feed_recycler_view">
+
+    </android.support.v7.widget.RecyclerView>
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/multiple_actions"
+        android:paddingBottom="16dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom|right"
+        fab:fab_addButtonColorNormal="@color/accent"
+        fab:fab_addButtonColorPressed="#CC3333"
+        fab:fab_addButtonPlusIconColor="@color/white"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/gallery_image_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/accent"
+            fab:fab_title="Gallery"
+            fab:fab_colorPressed="#CC3333"/>
+
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/camera_image_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/accent"
+            fab:fab_colorPressed="#CC3333"
+            fab:fab_title="Add Reminder" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/gallery_video_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/accent"
+            fab:fab_title="Gallery"
+            fab:fab_colorPressed="#CC3333"/>
+
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/camera_video_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/accent"
+            fab:fab_colorPressed="#CC3333"
+            fab:fab_title="Add Reminder" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </FrameLayout>

@@ -1,32 +1,595 @@
 package com.developer.sparsh.baseapplication.Fragments;
 
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.developer.sparsh.baseapplication.Adapters.FeedAdapter;
+import com.developer.sparsh.baseapplication.Helpers.DatabaseContract;
+import com.developer.sparsh.baseapplication.Helpers.DatabaseHelper;
+import com.developer.sparsh.baseapplication.Interface.FileUpload;
 import com.developer.sparsh.baseapplication.R;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import com.thin.downloadmanager.DefaultRetryPolicy;
+import com.thin.downloadmanager.DownloadRequest;
+import com.thin.downloadmanager.DownloadStatusListener;
+import com.thin.downloadmanager.ThinDownloadManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class Feed_Fragment extends Fragment {
 
+    private File photoFile = null;
+    private String TAG = "Feed Fragment";
+    private static final int SELECT_PICTURE = 0;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_VIDEO_CAPTURE = 2;
+    private static String USER_POST_URL = "http://192.168.0.102:3000/";
+    private RecyclerView feed_recyclerview;
+    private FeedAdapter adapter;
+    private RequestQueue queue;
+    private String GET_POST_URL = "";
+    private String GET_LIKES_URL = "";
+    private String GET_COMMENTS_URL = "";
+    private String GET_COMMENTS_LIKES_URL = "";
+    private String GET_COMMENTS_REPLIES_URL = "";
+    private String GET_INVITEES_URL = "";
+    private DatabaseHelper helper;
+    private ThinDownloadManager downloadManager;
 
     public Feed_Fragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Toast.makeText(getContext(),"AAAAA",Toast.LENGTH_SHORT).show();
-        return inflater.inflate(R.layout.fragment_layout_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_layout_feed, container, false);
+        setUpFloatingActionMenu(view);
+        downloadManager = new ThinDownloadManager();
+        queue = Volley.newRequestQueue(getActivity());
+        helper = new DatabaseHelper(getActivity());
+        feed_recyclerview = (RecyclerView) view.findViewById(R.id.feed_recycler_view);
+        feed_recyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
+        feed_recyclerview.setAdapter(adapter);
+        return view;
     }
 
+    private void setUpFloatingActionMenu(View v) {
+
+        com.getbase.floatingactionbutton.FloatingActionButton galleryImageAction =
+                (com.getbase.floatingactionbutton.FloatingActionButton)v.findViewById(R.id.gallery_image_action);
+        galleryImageAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickPhoto();
+            }
+        });
+
+        com.getbase.floatingactionbutton.FloatingActionButton galleryVideoAction =
+                (com.getbase.floatingactionbutton.FloatingActionButton)v.findViewById(R.id.gallery_video_action);
+        galleryVideoAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickVideo();
+            }
+        });
+
+        com.getbase.floatingactionbutton.FloatingActionButton cameraImageAction =
+                (com.getbase.floatingactionbutton.FloatingActionButton)v.findViewById(R.id.camera_image_action);
+        cameraImageAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakePictureIntent();
+            }
+        });
+
+        com.getbase.floatingactionbutton.FloatingActionButton cameraVideoAction =
+                (com.getbase.floatingactionbutton.FloatingActionButton)v.findViewById(R.id.camera_video_action);
+        cameraVideoAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakeVideoIntent();
+            }
+        });
+    }
+
+    // ************************************** HANDLING IMAGES *****************************************
+
+    public void pickPhoto() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent,
+                "Select Picture"), SELECT_PICTURE);
+
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+
+            }
+            if (photoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent,REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        String appName = getString(R.string.app_name);
+        File storageDir = getActivity().getExternalFilesDir(Environment.getExternalStorageDirectory()+"/"+appName+"/");
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        return image;
+    }
+
+    public String getImagePath(Uri uri) {
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+
+        cursor = getActivity().getContentResolver().query(
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        cursor.moveToFirst();
+        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        cursor.close();
+        return path;
+    }
+
+
+    // ******************************************** HANDLING VIDEOS *************************************************************
+
+    private void dispatchTakeVideoIntent() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
+        }
+
+    }
+
+    private void pickVideo(){
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent,
+                "Select Video"), REQUEST_VIDEO_CAPTURE);
+    }
+
+    public String getVideoPath(Uri uri) {
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+
+        cursor = getActivity().getContentResolver().query(
+                android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        cursor.moveToFirst();
+        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+        cursor.close();
+
+        return path;
+    }
+
+    // *********************************************************************************************************
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == SELECT_PICTURE && resultCode == RESULT_OK) {
+            Uri imageUri = data.getData();
+            String imageString = getImagePath(imageUri);
+            uploadFile(imageString);
+        }
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+            Uri imageUri = Uri.fromFile(photoFile);
+            //String imageString = getImagePath(imageUri);
+            uploadFile(imageUri.getPath());
+        }
+        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
+            Uri videoUri = data.getData();
+            String videopath = getVideoPath(videoUri);
+            uploadFile(videopath);
+        }
+    }
+
+    private void uploadFile(String path) {
+        FileUpload service = new Retrofit.Builder().baseUrl(USER_POST_URL).build().create(FileUpload.class);
+        File file = new File(path);
+        RequestBody requestFile =
+                RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+        // DUMMY DATA
+        String tittle = "hello, this is description speaking";
+        String type = "image";
+        long createdAt = System.currentTimeMillis()/1000;
+        String user_id = "1212rf32423";
+        RequestBody post_type = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(type));
+        RequestBody description = RequestBody.create(MediaType.parse("multipart/form-data"), tittle);
+        RequestBody created_timestamp = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(createdAt));
+        RequestBody uploader_id = RequestBody.create(MediaType.parse("multipart/form-data"), user_id);
+
+        Call<ResponseBody> call = service.upload(uploader_id,created_timestamp,description,post_type,body);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Upload error:", t.getMessage());
+            }
+        });
+    }
+
+    // ***************************************************** FETCHING EVERY THING FROM SERVER **********************************
+
+    void downloadEveryThing(int limit){
+        downloadPost(limit);
+        downloadLikes(limit);
+        downloadComments(limit);
+        downloadCommentsLikes(limit);
+        downloadCommentsReplies(limit);
+        downloadInvitees(limit);
+    }
+
+    private void downloadPost(int limit){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_POST_URL+"/"+limit+"/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray postArray = new JSONArray(response);
+                            for(int i=0;i<postArray.length();i++){
+                                JSONObject postObject = postArray.getJSONObject(i);
+                                long timeStamp = postObject.getLong("timeStamp");
+                                String mineType = postObject.getString("mineType");
+                                String userId = postObject.getString("userId");
+                                String locationUri = postObject.getString("locationUri");
+                                String description = postObject.getString("description");
+                                String postId = postObject.getString("_id");
+
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put(helper.Post_By_Invitee_Id,userId);
+                                contentValues.put(helper.Post_Discription,description);
+                                contentValues.put(helper.Post_TimeStamp,timeStamp);
+                                contentValues.put(helper.Post_File_Url,locationUri);
+                                contentValues.put(helper.Post_Type,mineType);
+                                contentValues.put(helper.Post_ID,postId);
+                                if(mineType=="image"){
+                                    imageDownload(getContext(),locationUri,postId);
+                                }else {
+                                    videoDownload(locationUri,postId);
+                                }
+                                getActivity().getContentResolver().insert(DatabaseContract.POST_CONTENT_URI,contentValues);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    void downloadLikes(int limit){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_LIKES_URL+"/"+limit+"/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray LikesArray = new JSONArray(response);
+                            for(int i=0;i<LikesArray.length();i++){
+                                JSONObject likesObject = LikesArray.getJSONObject(i);
+                                String userId = likesObject.getString("userId");
+                                String postId = likesObject.getString("postId");
+                                String likesId = likesObject.getString("_id");
+
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put(helper.Like_ID,likesId);
+                                contentValues.put(helper.Likes_By_Invitee_Id,userId);
+                                contentValues.put(helper.Likes_Post_Id,postId);
+                                getActivity().getContentResolver().insert(DatabaseContract.LIKES_CONTENT_URI,contentValues);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    void downloadComments(int limit){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_COMMENTS_URL+"/"+limit+"/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray commentsArray = new JSONArray(response);
+                            for(int i=0;i<commentsArray.length();i++){
+                                JSONObject commentsObject = commentsArray.getJSONObject(i);
+                                long timeStamp = commentsObject.getLong("timeStamp");
+                                String userId = commentsObject.getString("userId");
+                                String description = commentsObject.getString("description");
+                                String postId = commentsObject.getString("postId");
+                                String commentId = commentsObject.getString("_id");
+
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put(helper.Comment_ID,commentId);
+                                contentValues.put(helper.Comment_By_Invitee_Id,userId);
+                                contentValues.put(helper.Comment_Discription,description);
+                                contentValues.put(helper.Comment_TimeStamp,timeStamp);
+                                contentValues.put(helper.Comment_Post_Id,postId);
+                                getActivity().getContentResolver().insert(DatabaseContract.COMMENT_CONTENT_URI,contentValues);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    void downloadCommentsLikes(int limit){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_COMMENTS_LIKES_URL+"/"+limit+"/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray commentsLikesArray = new JSONArray(response);
+                            for(int i=0;i<commentsLikesArray.length();i++){
+                                JSONObject likesObject = commentsLikesArray.getJSONObject(i);
+                                String userId = likesObject.getString("userId");
+                                String commentsId = likesObject.getString("commentId");
+                                String likesId = likesObject.getString("_id");
+
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put(helper.Comment_Like_ID,likesId);
+                                contentValues.put(helper.Comments_Likes_By_Invitee_Id,userId);
+                                contentValues.put(helper.Likes_Comment_Id,commentsId);
+                                getActivity().getContentResolver().insert(DatabaseContract.COMMENTS_LIKES_CONTENT_URI,contentValues);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    void downloadCommentsReplies(int limit){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_COMMENTS_REPLIES_URL+"/"+limit+"/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray commentsRepliesArray = new JSONArray(response);
+                            for(int i=0;i<commentsRepliesArray.length();i++){
+                                JSONObject repliesObject = commentsRepliesArray.getJSONObject(i);
+                                String userId = repliesObject.getString("userId");
+                                String repliesId = repliesObject.getString("_id");
+                                String description = repliesObject.getString("replies");
+                                String commentsId = repliesObject.getString("commentId");
+                                long timeStamp = repliesObject.getLong("timestamp");
+
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put(helper.Replies_TimeStamp,timeStamp);
+                                contentValues.put(helper.Comment_Replies_ID,repliesId);
+                                contentValues.put(helper.Comments_Reply,description);
+                                contentValues.put(helper.Replies_Comment_Id,commentsId);
+                                contentValues.put(helper.Comment_By_Invitee_Id,userId);
+                                getActivity().getContentResolver().insert(DatabaseContract.COMMENTS_REPLIES_CONTENT_URI,contentValues);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    void downloadInvitees(int limit){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_INVITEES_URL+"/"+limit+"/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray inviteesArray = new JSONArray(response);
+                            for(int i=0;i<inviteesArray.length();i++){
+                                JSONObject inviteeObject = inviteesArray.getJSONObject(i);
+                                String userId = inviteeObject.getString("userId");
+                                String name = inviteeObject.getString("name");
+                                String dpLink = inviteeObject.getString("dpLink");
+                                Boolean going = inviteeObject.getBoolean("going");
+
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put(helper.Invitee_Dp,dpLink);
+                                contentValues.put(helper.Invitee_Going,going);
+                                contentValues.put(helper.Invitee_Name,name);
+                                contentValues.put(helper.User_Id,userId);
+                                getActivity().getContentResolver().insert(DatabaseContract.INVITEE_CONTENT_URI,contentValues);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+
+    private void imageDownload(Context context,String downloadUrl, String url){
+        Picasso.with(context)
+                .load(downloadUrl)  // I want url with file extension
+                .into(getTarget(url));
+    }
+
+
+    private Target getTarget(final String postId){
+        Target target = new Target(){
+
+            @Override
+            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // ALL IMAGES MUST BE STORED IN .PNG FORMAT ON SERVER
+                        File file = new File(Environment.getExternalStorageDirectory().getPath() +
+                                "/" + R.string.app_name + "/"+"images/" + postId + ".png");
+                        try {
+                            file.createNewFile();
+                            FileOutputStream ostream = new FileOutputStream(file);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, ostream);
+                            ostream.flush();
+                            ostream.close();
+                        } catch (IOException e) {
+                            Log.e("IOException", e.getLocalizedMessage());
+                        }
+                    }
+                }).start();
+
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                Log.d(TAG,"unable to download post image");
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                ContentValues contentValues = new ContentValues();
+                String path = Environment.getExternalStorageDirectory().getPath()+"/"+R.string.app_name+
+                        "/images/"+postId+".png";
+                contentValues.put(helper.Post_File_Url,path);
+                getActivity().getContentResolver().update(DatabaseContract.POST_CONTENT_URI,contentValues,helper.Post_ID, new String[]{postId});
+            }
+        };
+        return target;
+    }
+
+     void videoDownload(String downloadUrl, final String postId){
+        Uri destinationUri = Uri.parse(Environment.getExternalStorageDirectory().getPath() +
+                "/" + R.string.app_name + "/"+"videos/" + postId + ".mp4");
+        Uri downloadUri = Uri.parse(downloadUrl);
+        DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
+                .addCustomHeader("Auth-Token", "YourTokenApiKey")
+                .setRetryPolicy(new DefaultRetryPolicy())
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadListener(new DownloadStatusListener() {
+                    @Override
+                    public void onDownloadComplete(int id) {
+                        ContentValues contentValues = new ContentValues();
+                        String path = Environment.getExternalStorageDirectory().getPath()+"/"+R.string.app_name+
+                                "/videos/"+postId+".mp4";
+                        contentValues.put(helper.Post_File_Url,path);
+                        getActivity().getContentResolver().update(DatabaseContract.POST_CONTENT_URI,contentValues,helper.Post_ID, new String[]{postId});
+                    }
+
+                    @Override
+                    public void onDownloadFailed(int id, int errorCode, String errorMessage) {
+
+                    }
+
+                    @Override
+                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress) {
+
+                    }
+                });
+        int downloadId = downloadManager.add(downloadRequest);
+    }
+
+    // *************************************************************************************************************************
 }

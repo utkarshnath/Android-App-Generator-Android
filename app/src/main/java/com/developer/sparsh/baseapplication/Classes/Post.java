@@ -10,8 +10,7 @@ public class Post {
     public String uploaded_by;
     public Date uploaded_at;
     public String post_id;
-    public String image_url;
-    public String video_url;
+    public String file_url;
     public int no_of_likes;
     public String discription;
     public String uploader_dp_url;
