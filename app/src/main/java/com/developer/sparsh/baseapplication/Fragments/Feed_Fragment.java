@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,6 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.developer.sparsh.baseapplication.Adapters.FeedAdapter;
+import com.developer.sparsh.baseapplication.Adapters.FeedCursorAdapter;
 import com.developer.sparsh.baseapplication.Helpers.DatabaseContract;
 import com.developer.sparsh.baseapplication.Helpers.DatabaseHelper;
 import com.developer.sparsh.baseapplication.Interface.FileUpload;
@@ -63,7 +67,7 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Feed_Fragment extends Fragment {
+public class Feed_Fragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private File photoFile = null;
     private String TAG = "Feed Fragment";
@@ -72,7 +76,7 @@ public class Feed_Fragment extends Fragment {
     static final int REQUEST_VIDEO_CAPTURE = 2;
     private static String USER_POST_URL = "http://192.168.0.100:3000/api/v1/";
     private RecyclerView feed_recyclerview;
-    private FeedAdapter adapter;
+    private FeedCursorAdapter mAdapter = null;
     private RequestQueue queue;
     private String GET_POST_URL = "";
     private String GET_INVITEES_URL = "";
@@ -95,7 +99,8 @@ public class Feed_Fragment extends Fragment {
         helper = new DatabaseHelper(getActivity());
         feed_recyclerview = (RecyclerView) view.findViewById(R.id.feed_recycler_view);
         feed_recyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
-        feed_recyclerview.setAdapter(adapter);
+        mAdapter = new FeedCursorAdapter(getContext() , null);
+
         return view;
     }
 
@@ -508,6 +513,29 @@ public class Feed_Fragment extends Fragment {
                     }
                 });
         int downloadId = downloadManager.add(downloadRequest);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getContext() ,
+                DatabaseContract.POST_CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // TODO Swap cursor
+        mAdapter.swapCursor(data);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
     }
 
     // *************************************************************************************************************************
