@@ -39,7 +39,7 @@ public class DataProvider extends ContentProvider {
         switch (match){
             case INVITEE_TABLE:
                 cursor = helper.getReadableDatabase().query(
-                        DatabaseContract.INVITEE_TABLE_NAME,
+                        helper.Invitees_Table,
                         projection,
                         selection,
                         selectionArgs,
@@ -50,7 +50,7 @@ public class DataProvider extends ContentProvider {
                 break;
             case POST_TABLE:
                 cursor = helper.getReadableDatabase().query(
-                        DatabaseContract.POST_TABLE_NAME,
+                        helper.Post_Table,
                         projection,
                         selection,
                         selectionArgs,
@@ -61,7 +61,7 @@ public class DataProvider extends ContentProvider {
                 break;
             case COMMENTS_TABLE:
                 cursor = helper.getReadableDatabase().query(
-                        DatabaseContract.COMMENT_TABLE_NAME,
+                        helper.Comments_Table,
                         projection,
                         selection,
                         selectionArgs,
@@ -72,7 +72,7 @@ public class DataProvider extends ContentProvider {
                 break;
             case LIKES_TABLE:
                 cursor = helper.getReadableDatabase().query(
-                        DatabaseContract.LIKES_TABLE_NAME,
+                        helper.Likes_Table,
                         projection,
                         selection,
                         selectionArgs,
@@ -83,7 +83,7 @@ public class DataProvider extends ContentProvider {
                 break;
             case COMMENTS_LIKES_TABLE:
                 cursor = helper.getReadableDatabase().query(
-                        DatabaseContract.COMMENTS_LIKES_TABLE_NAME,
+                        helper.Comments_Likes_Table,
                         projection,
                         selection,
                         selectionArgs,
@@ -94,7 +94,7 @@ public class DataProvider extends ContentProvider {
                 break;
             case COMMENTS_REPLY_TABLE:
                 cursor = helper.getReadableDatabase().query(
-                        DatabaseContract.COMMENTS_REPLIES_TABLE_NAME,
+                        helper.Comments_Replies_Table,
                         projection,
                         selection,
                         selectionArgs,
@@ -139,37 +139,37 @@ public class DataProvider extends ContentProvider {
         Uri returnUri = null;
         switch (match){
             case INVITEE_TABLE:
-                long idx = helper.getWritableDatabase().insert(DatabaseContract.INVITEE_TABLE_NAME,null,values);
+                long idx = helper.getWritableDatabase().insert(helper.Invitees_Table,null,values);
                 if(idx > 0){
                     returnUri = uri;
                 }
                 break;
             case POST_TABLE:
-                idx = helper.getWritableDatabase().insert(DatabaseContract.POST_TABLE_NAME,null,values);
+                idx = helper.getWritableDatabase().insert(helper.Post_Table,null,values);
                 if(idx > 0){
                     returnUri = uri;
                 }
                 break;
             case COMMENTS_TABLE:
-                idx = helper.getWritableDatabase().insert(DatabaseContract.COMMENT_TABLE_NAME,null,values);
+                idx = helper.getWritableDatabase().insert(helper.Comments_Table,null,values);
                 if(idx > 0){
                     returnUri = uri;
                 }
                 break;
             case LIKES_TABLE:
-                idx = helper.getWritableDatabase().insert(DatabaseContract.LIKES_TABLE_NAME,null,values);
+                idx = helper.getWritableDatabase().insert(helper.Likes_Table,null,values);
                 if(idx > 0){
                     returnUri = uri;
                 }
                 break;
             case COMMENTS_LIKES_TABLE:
-                idx = helper.getWritableDatabase().insert(DatabaseContract.COMMENTS_LIKES_TABLE_NAME,null,values);
+                idx = helper.getWritableDatabase().insert(helper.Comments_Likes_Table,null,values);
                 if(idx > 0){
                     returnUri = uri;
                 }
                 break;
             case COMMENTS_REPLY_TABLE:
-                idx = helper.getWritableDatabase().insert(DatabaseContract.COMMENTS_REPLIES_TABLE_NAME,null,values);
+                idx = helper.getWritableDatabase().insert(helper.Comments_Replies_Table,null,values);
                 if(idx > 0){
                     returnUri = uri;
                 }
@@ -187,22 +187,22 @@ public class DataProvider extends ContentProvider {
         int rowsDeleted = 0;
         switch (match){
             case INVITEE_TABLE:
-                rowsDeleted= helper.getWritableDatabase().delete(DatabaseContract.INVITEE_TABLE_NAME,selection,selectionArgs);
+                rowsDeleted= helper.getWritableDatabase().delete(helper.Invitees_Table,selection,selectionArgs);
                 break;
             case POST_TABLE:
-                rowsDeleted = helper.getWritableDatabase().delete(DatabaseContract.POST_TABLE_NAME,selection,selectionArgs);
+                rowsDeleted = helper.getWritableDatabase().delete(helper.Post_Table,selection,selectionArgs);
                 break;
             case COMMENTS_TABLE:
-                rowsDeleted = helper.getWritableDatabase().delete(DatabaseContract.COMMENT_TABLE_NAME,selection,selectionArgs);
+                rowsDeleted = helper.getWritableDatabase().delete(helper.Comments_Table,selection,selectionArgs);
                 break;
             case LIKES_TABLE:
-                rowsDeleted = helper.getWritableDatabase().delete(DatabaseContract.LIKES_TABLE_NAME,selection,selectionArgs);
+                rowsDeleted = helper.getWritableDatabase().delete(helper.Likes_Table,selection,selectionArgs);
                 break;
             case COMMENTS_LIKES_TABLE:
-                rowsDeleted = helper.getWritableDatabase().delete(DatabaseContract.COMMENTS_LIKES_TABLE_NAME,selection,selectionArgs);
+                rowsDeleted = helper.getWritableDatabase().delete(helper.Comments_Likes_Table,selection,selectionArgs);
                 break;
             case COMMENTS_REPLY_TABLE:
-                rowsDeleted = helper.getWritableDatabase().delete(DatabaseContract.COMMENTS_REPLIES_TABLE_NAME,selection,selectionArgs);
+                rowsDeleted = helper.getWritableDatabase().delete(helper.Comments_Replies_Table,selection,selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Uri Mismatch");
@@ -217,22 +217,22 @@ public class DataProvider extends ContentProvider {
         int rowsUpdated = 0;
         switch (match){
             case INVITEE_TABLE:
-                rowsUpdated = helper.getWritableDatabase().update(DatabaseContract.INVITEE_TABLE_NAME,values,selection,selectionArgs);
+                rowsUpdated = helper.getWritableDatabase().update(helper.Invitees_Table,values,selection,selectionArgs);
                 break;
             case POST_TABLE:
-                rowsUpdated = helper.getWritableDatabase().update(DatabaseContract.POST_TABLE_NAME,values,selection,selectionArgs);
+                rowsUpdated = helper.getWritableDatabase().update(helper.Post_Table,values,selection,selectionArgs);
                 break;
             case COMMENTS_TABLE:
-                rowsUpdated = helper.getWritableDatabase().update(DatabaseContract.COMMENT_TABLE_NAME,values,selection,selectionArgs);
+                rowsUpdated = helper.getWritableDatabase().update(helper.Comments_Table,values,selection,selectionArgs);
                 break;
             case LIKES_TABLE:
-                rowsUpdated = helper.getWritableDatabase().update(DatabaseContract.LIKES_TABLE_NAME,values,selection,selectionArgs);
+                rowsUpdated = helper.getWritableDatabase().update(helper.Likes_Table,values,selection,selectionArgs);
                 break;
             case COMMENTS_REPLY_TABLE:
-                rowsUpdated = helper.getWritableDatabase().update(DatabaseContract.COMMENTS_REPLIES_TABLE_NAME,values,selection,selectionArgs);
+                rowsUpdated = helper.getWritableDatabase().update(helper.Comments_Replies_Table,values,selection,selectionArgs);
                 break;
             case COMMENTS_LIKES_TABLE:
-                rowsUpdated = helper.getWritableDatabase().update(DatabaseContract.COMMENTS_LIKES_TABLE_NAME,values,selection,selectionArgs);
+                rowsUpdated = helper.getWritableDatabase().update(helper.Comments_Likes_Table,values,selection,selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Uri Mismatch");

@@ -70,15 +70,11 @@ public class Feed_Fragment extends Fragment {
     private static final int SELECT_PICTURE = 0;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_VIDEO_CAPTURE = 2;
-    private static String USER_POST_URL = "http://192.168.0.102:3000/";
+    private static String USER_POST_URL = "http://192.168.0.100:3000/api/v1/";
     private RecyclerView feed_recyclerview;
     private FeedAdapter adapter;
     private RequestQueue queue;
     private String GET_POST_URL = "";
-    private String GET_LIKES_URL = "";
-    private String GET_COMMENTS_URL = "";
-    private String GET_COMMENTS_LIKES_URL = "";
-    private String GET_COMMENTS_REPLIES_URL = "";
     private String GET_INVITEES_URL = "";
     private DatabaseHelper helper;
     private ThinDownloadManager downloadManager;
@@ -94,6 +90,7 @@ public class Feed_Fragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_layout_feed, container, false);
         setUpFloatingActionMenu(view);
         downloadManager = new ThinDownloadManager();
+
         queue = Volley.newRequestQueue(getActivity());
         helper = new DatabaseHelper(getActivity());
         feed_recyclerview = (RecyclerView) view.findViewById(R.id.feed_recycler_view);
@@ -377,9 +374,9 @@ public class Feed_Fragment extends Fragment {
                                 contentValues.put(helper.Post_Type,mineType);
                                 contentValues.put(helper.Post_ID,postId);
                                 if(mineType=="image"){
-                                    imageDownload(getContext(),locationUri,postId);
+                                    //imageDownload(getContext(),locationUri,postId);
                                 }else {
-                                    videoDownload(locationUri,postId);
+                                    //videoDownload(locationUri,postId);
                                 }
                                 getActivity().getContentResolver().insert(DatabaseContract.POST_CONTENT_URI,contentValues);
                             }

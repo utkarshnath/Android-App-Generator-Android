@@ -14,7 +14,7 @@ import retrofit2.http.Part;
 
 public interface FileUpload {
     @Multipart
-    @POST("/api/v1/post/")
+    @POST("post/")
     Call<ResponseBody> upload(@Part("uploaded_by") RequestBody uploaded_by,
                               @Part("created_at") RequestBody created_at,
                               @Part("discription") RequestBody discription,
