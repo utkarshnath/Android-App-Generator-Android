@@ -289,11 +289,8 @@ public class Feed_Fragment extends Fragment {
 
     void downloadEveryThing(int limit){
         downloadPost(limit);
-        downloadLikes(limit);
-        downloadComments(limit);
-        downloadCommentsLikes(limit);
-        downloadCommentsReplies(limit);
-        downloadInvitees(limit);
+        downloadInvitees();
+        //download event details
     }
 
     private void downloadPost(int limit){
@@ -311,6 +308,66 @@ public class Feed_Fragment extends Fragment {
                                 String locationUri = postObject.getString("locationUri");
                                 String description = postObject.getString("description");
                                 String postId = postObject.getString("_id");
+
+                                JSONArray likesArray = postObject.getJSONArray("likes");
+                                for(int j=0;j<likesArray.length();j++){
+                                    JSONObject likesObject = likesArray.getJSONObject(j);
+                                    String likesUserId = likesObject.getString("userId");
+                                    String likesId = likesObject.getString("_id");
+
+                                    ContentValues contentValues = new ContentValues();
+                                    contentValues.put(helper.Like_ID,likesId);
+                                    contentValues.put(helper.Likes_By_Invitee_Id,likesUserId);
+                                    contentValues.put(helper.Likes_Post_Id,postId);
+                                    getActivity().getContentResolver().insert(DatabaseContract.LIKES_CONTENT_URI,contentValues);
+                                }
+
+                                JSONArray commentsArray = postObject.getJSONArray("comments");
+                                for(int k=0;i<commentsArray.length();k++){
+                                    JSONObject commentsObject = commentsArray.getJSONObject(k);
+                                    long commentTimeStamp = commentsObject.getLong("timeStamp");
+                                    String commentUserId = commentsObject.getString("userId");
+                                    String commentDescription = commentsObject.getString("description");
+                                    String commentId = commentsObject.getString("_id");
+
+                                        JSONArray commentsLikesArray = commentsObject.getJSONArray("likes");
+                                        for(int l=0;l<commentsLikesArray.length();l++){
+                                            JSONObject commentsLikesObject = commentsLikesArray.getJSONObject(l);
+                                            String commentsLikesUserId = commentsLikesObject.getString("userId");
+                                            String likesId = commentsLikesObject.getString("_id");
+
+                                            ContentValues contentValues = new ContentValues();
+                                            contentValues.put(helper.Comment_Like_ID,likesId);
+                                            contentValues.put(helper.Comments_Likes_By_Invitee_Id,commentsLikesUserId);
+                                            contentValues.put(helper.Likes_Comment_Id,commentId);
+                                            getActivity().getContentResolver().insert(DatabaseContract.COMMENTS_LIKES_CONTENT_URI,contentValues);
+                                        }
+
+                                        JSONArray commentsRepliesArray = commentsObject.getJSONArray("replies");
+                                        for(int m=0;i<commentsRepliesArray.length();m++) {
+                                            JSONObject repliesObject = commentsRepliesArray.getJSONObject(m);
+                                            String repliesUserId = repliesObject.getString("userId");
+                                            String repliesId = repliesObject.getString("_id");
+                                            String repliesDescription = repliesObject.getString("replies");
+                                            long repliesTimeStamp = repliesObject.getLong("timestamp");
+
+                                            ContentValues contentValues = new ContentValues();
+                                            contentValues.put(helper.Replies_TimeStamp, repliesTimeStamp);
+                                            contentValues.put(helper.Comment_Replies_ID, repliesId);
+                                            contentValues.put(helper.Comments_Reply, repliesDescription);
+                                            contentValues.put(helper.Replies_Comment_Id, commentId);
+                                            contentValues.put(helper.Comment_By_Invitee_Id, repliesUserId);
+                                            getActivity().getContentResolver().insert(DatabaseContract.COMMENTS_REPLIES_CONTENT_URI, contentValues);
+                                        }
+
+                                    ContentValues contentValues = new ContentValues();
+                                    contentValues.put(helper.Comment_ID,commentId);
+                                    contentValues.put(helper.Comment_By_Invitee_Id,commentUserId);
+                                    contentValues.put(helper.Comment_Discription,commentDescription);
+                                    contentValues.put(helper.Comment_TimeStamp,commentTimeStamp);
+                                    contentValues.put(helper.Comment_Post_Id,postId);
+                                    getActivity().getContentResolver().insert(DatabaseContract.COMMENT_CONTENT_URI,contentValues);
+                                }
 
                                 ContentValues contentValues = new ContentValues();
                                 contentValues.put(helper.Post_By_Invitee_Id,userId);
@@ -339,144 +396,9 @@ public class Feed_Fragment extends Fragment {
         queue.add(stringRequest);
     }
 
-    void downloadLikes(int limit){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_LIKES_URL+"/"+limit+"/",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray LikesArray = new JSONArray(response);
-                            for(int i=0;i<LikesArray.length();i++){
-                                JSONObject likesObject = LikesArray.getJSONObject(i);
-                                String userId = likesObject.getString("userId");
-                                String postId = likesObject.getString("postId");
-                                String likesId = likesObject.getString("_id");
 
-                                ContentValues contentValues = new ContentValues();
-                                contentValues.put(helper.Like_ID,likesId);
-                                contentValues.put(helper.Likes_By_Invitee_Id,userId);
-                                contentValues.put(helper.Likes_Post_Id,postId);
-                                getActivity().getContentResolver().insert(DatabaseContract.LIKES_CONTENT_URI,contentValues);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        queue.add(stringRequest);
-    }
-
-    void downloadComments(int limit){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_COMMENTS_URL+"/"+limit+"/",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray commentsArray = new JSONArray(response);
-                            for(int i=0;i<commentsArray.length();i++){
-                                JSONObject commentsObject = commentsArray.getJSONObject(i);
-                                long timeStamp = commentsObject.getLong("timeStamp");
-                                String userId = commentsObject.getString("userId");
-                                String description = commentsObject.getString("description");
-                                String postId = commentsObject.getString("postId");
-                                String commentId = commentsObject.getString("_id");
-
-                                ContentValues contentValues = new ContentValues();
-                                contentValues.put(helper.Comment_ID,commentId);
-                                contentValues.put(helper.Comment_By_Invitee_Id,userId);
-                                contentValues.put(helper.Comment_Discription,description);
-                                contentValues.put(helper.Comment_TimeStamp,timeStamp);
-                                contentValues.put(helper.Comment_Post_Id,postId);
-                                getActivity().getContentResolver().insert(DatabaseContract.COMMENT_CONTENT_URI,contentValues);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        queue.add(stringRequest);
-    }
-
-    void downloadCommentsLikes(int limit){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_COMMENTS_LIKES_URL+"/"+limit+"/",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray commentsLikesArray = new JSONArray(response);
-                            for(int i=0;i<commentsLikesArray.length();i++){
-                                JSONObject likesObject = commentsLikesArray.getJSONObject(i);
-                                String userId = likesObject.getString("userId");
-                                String commentsId = likesObject.getString("commentId");
-                                String likesId = likesObject.getString("_id");
-
-                                ContentValues contentValues = new ContentValues();
-                                contentValues.put(helper.Comment_Like_ID,likesId);
-                                contentValues.put(helper.Comments_Likes_By_Invitee_Id,userId);
-                                contentValues.put(helper.Likes_Comment_Id,commentsId);
-                                getActivity().getContentResolver().insert(DatabaseContract.COMMENTS_LIKES_CONTENT_URI,contentValues);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        queue.add(stringRequest);
-    }
-
-    void downloadCommentsReplies(int limit){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_COMMENTS_REPLIES_URL+"/"+limit+"/",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray commentsRepliesArray = new JSONArray(response);
-                            for(int i=0;i<commentsRepliesArray.length();i++){
-                                JSONObject repliesObject = commentsRepliesArray.getJSONObject(i);
-                                String userId = repliesObject.getString("userId");
-                                String repliesId = repliesObject.getString("_id");
-                                String description = repliesObject.getString("replies");
-                                String commentsId = repliesObject.getString("commentId");
-                                long timeStamp = repliesObject.getLong("timestamp");
-
-                                ContentValues contentValues = new ContentValues();
-                                contentValues.put(helper.Replies_TimeStamp,timeStamp);
-                                contentValues.put(helper.Comment_Replies_ID,repliesId);
-                                contentValues.put(helper.Comments_Reply,description);
-                                contentValues.put(helper.Replies_Comment_Id,commentsId);
-                                contentValues.put(helper.Comment_By_Invitee_Id,userId);
-                                getActivity().getContentResolver().insert(DatabaseContract.COMMENTS_REPLIES_CONTENT_URI,contentValues);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        queue.add(stringRequest);
-    }
-
-    void downloadInvitees(int limit){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_INVITEES_URL+"/"+limit+"/",
+    void downloadInvitees(){
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_INVITEES_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
