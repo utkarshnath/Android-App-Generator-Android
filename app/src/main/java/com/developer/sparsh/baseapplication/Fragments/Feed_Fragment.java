@@ -11,7 +11,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.renderscript.Sampler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,6 +32,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.developer.sparsh.baseapplication.Adapters.FeedAdapter;
+import com.developer.sparsh.baseapplication.Adapters.FeedCursorAdapter;
 import com.developer.sparsh.baseapplication.Helpers.DatabaseContract;
 import com.developer.sparsh.baseapplication.Helpers.DatabaseHelper;
 import com.developer.sparsh.baseapplication.Interface.FileUpload;
@@ -47,8 +52,12 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -63,18 +72,18 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Feed_Fragment extends Fragment {
+public class Feed_Fragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private File photoFile = null;
-    private String TAG = "Feed Fragment";
+    private String TAG = "!@#";
     private static final int SELECT_PICTURE = 0;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_VIDEO_CAPTURE = 2;
-    private static String USER_POST_URL = "http://192.168.0.100:3000/api/v1/";
+    private static String USER_POST_URL = "http://223.179.128.215/api/v1/";
     private RecyclerView feed_recyclerview;
-    private FeedAdapter adapter;
+    private FeedCursorAdapter mAdapter = null;
     private RequestQueue queue;
-    private String GET_POST_URL = "";
+    private String GET_POST_URL = "http://223.179.128.215/api/v1/post/?appId=";
     private String GET_INVITEES_URL = "";
     private DatabaseHelper helper;
     private ThinDownloadManager downloadManager;
@@ -95,8 +104,16 @@ public class Feed_Fragment extends Fragment {
         helper = new DatabaseHelper(getActivity());
         feed_recyclerview = (RecyclerView) view.findViewById(R.id.feed_recycler_view);
         feed_recyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
-        feed_recyclerview.setAdapter(adapter);
+        mAdapter = new FeedCursorAdapter(getContext() , null);
+        feed_recyclerview.setAdapter(mAdapter);
+        downloadEveryThing(1);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(100,null,this);
     }
 
     private void setUpFloatingActionMenu(View v) {
@@ -242,7 +259,6 @@ public class Feed_Fragment extends Fragment {
         }
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
             Uri imageUri = Uri.fromFile(photoFile);
-            //String imageString = getImagePath(imageUri);
             uploadFile(imageUri.getPath());
         }
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
@@ -258,18 +274,20 @@ public class Feed_Fragment extends Fragment {
         RequestBody requestFile =
                 RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body =
-                MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+                MultipartBody.Part.createFormData("postData", file.getName(), requestFile);
         // DUMMY DATA
         String tittle = "hello, this is description speaking";
         String type = "image";
         long createdAt = System.currentTimeMillis()/1000;
-        String user_id = "1212rf32423";
+        String userId = "587b2fff673c3a251c3478fe";
+        String appId = "588c9af02561712a0c1e93cb";
         RequestBody post_type = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(type));
         RequestBody description = RequestBody.create(MediaType.parse("multipart/form-data"), tittle);
+        RequestBody appid = RequestBody.create(MediaType.parse("multipart/form-data"), appId);
         RequestBody created_timestamp = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(createdAt));
-        RequestBody uploader_id = RequestBody.create(MediaType.parse("multipart/form-data"), user_id);
+        RequestBody uploader_id = RequestBody.create(MediaType.parse("multipart/form-data"), userId);
 
-        Call<ResponseBody> call = service.upload(uploader_id,created_timestamp,description,post_type,body);
+        Call<ResponseBody> call = service.upload(uploader_id,appid,created_timestamp,description,post_type,body);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -285,22 +303,28 @@ public class Feed_Fragment extends Fragment {
     // ***************************************************** FETCHING EVERY THING FROM SERVER **********************************
 
     void downloadEveryThing(int limit){
-        downloadPost(limit);
-        downloadInvitees();
+        try {
+            downloadPost(limit);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        //downloadInvitees();
         //download event details
     }
 
-    private void downloadPost(int limit){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_POST_URL+"/"+limit+"/",
+    private void downloadPost(int limit) throws UnsupportedEncodingException {
+        String appId = "587b2fff673c3a251c3478fe";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, GET_POST_URL+ URLEncoder.encode(appId, "UTF-8"),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.d("!@#","resposnse "+ response);
                         try {
                             JSONArray postArray = new JSONArray(response);
                             for(int i=0;i<postArray.length();i++){
                                 JSONObject postObject = postArray.getJSONObject(i);
-                                long timeStamp = postObject.getLong("timeStamp");
-                                String mineType = postObject.getString("mineType");
+                                long timeStamp = postObject.getLong("timestamp");
+                                String mineType = postObject.getString("mimeType");
                                 String userId = postObject.getString("userId");
                                 String locationUri = postObject.getString("locationUri");
                                 String description = postObject.getString("description");
@@ -373,11 +397,11 @@ public class Feed_Fragment extends Fragment {
                                 contentValues.put(helper.Post_File_Url,locationUri);
                                 contentValues.put(helper.Post_Type,mineType);
                                 contentValues.put(helper.Post_ID,postId);
-                                if(mineType=="image"){
-                                    //imageDownload(getContext(),locationUri,postId);
-                                }else {
-                                    //videoDownload(locationUri,postId);
-                                }
+//                                if(mineType=="image"){
+//                                    //imageDownload(getContext(),locationUri,postId);
+//                                }else {
+//                                    //videoDownload(locationUri,postId);
+//                                }
                                 getActivity().getContentResolver().insert(DatabaseContract.POST_CONTENT_URI,contentValues);
                             }
                         } catch (JSONException e) {
@@ -387,7 +411,7 @@ public class Feed_Fragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                    Log.d("!@#",error.toString());
             }
         });
         queue.add(stringRequest);
@@ -429,56 +453,6 @@ public class Feed_Fragment extends Fragment {
     }
 
 
-    private void imageDownload(Context context,String downloadUrl, String url){
-        Picasso.with(context)
-                .load(downloadUrl)  // I want url with file extension
-                .into(getTarget(url));
-    }
-
-
-    private Target getTarget(final String postId){
-        Target target = new Target(){
-
-            @Override
-            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // ALL IMAGES MUST BE STORED IN .PNG FORMAT ON SERVER
-                        File file = new File(Environment.getExternalStorageDirectory().getPath() +
-                                "/" + R.string.app_name + "/"+"images/" + postId + ".png");
-                        try {
-                            file.createNewFile();
-                            FileOutputStream ostream = new FileOutputStream(file);
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, ostream);
-                            ostream.flush();
-                            ostream.close();
-                        } catch (IOException e) {
-                            Log.e("IOException", e.getLocalizedMessage());
-                        }
-                    }
-                }).start();
-
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                Log.d(TAG,"unable to download post image");
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                ContentValues contentValues = new ContentValues();
-                String path = Environment.getExternalStorageDirectory().getPath()+"/"+R.string.app_name+
-                        "/images/"+postId+".png";
-                contentValues.put(helper.Post_File_Url,path);
-                getActivity().getContentResolver().update(DatabaseContract.POST_CONTENT_URI,contentValues,helper.Post_ID, new String[]{postId});
-            }
-        };
-        return target;
-    }
-
      void videoDownload(String downloadUrl, final String postId){
         Uri destinationUri = Uri.parse(Environment.getExternalStorageDirectory().getPath() +
                 "/" + R.string.app_name + "/"+"videos/" + postId + ".mp4");
@@ -511,4 +485,28 @@ public class Feed_Fragment extends Fragment {
     }
 
     // *************************************************************************************************************************
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getContext() ,
+                DatabaseContract.POST_CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // TODO Swap cursor
+        mAdapter.swapCursor(data);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
+    }
+
 }

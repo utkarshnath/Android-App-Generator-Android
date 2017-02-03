@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Auto-App-Generator-Android_Version-.iml" filepath="$PROJECT_DIR$/Auto-App-Generator-Android_Version-.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Auto App Generator.iml" filepath="$PROJECT_DIR$/Auto App Generator.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

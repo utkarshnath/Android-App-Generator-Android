@@ -15,7 +15,7 @@ import android.util.Log;
 public class DataProvider extends ContentProvider {
     private DatabaseHelper helper;
     private static final UriMatcher uriMatcher = buildUriMatcher();
-    private static final String TAG = DataProvider.class.getSimpleName();
+    private static final String TAG = "!@#";
     private static final int INVITEE_TABLE = 100;
     private static final int POST_TABLE = 101;
     private static final int COMMENTS_TABLE = 102;
@@ -34,6 +34,7 @@ public class DataProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Log.d(TAG, "query: queried database");
         Cursor cursor = null;
         final int match = uriMatcher.match(uri);
         switch (match){
@@ -214,12 +215,14 @@ public class DataProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final int match = uriMatcher.match(uri);
+        Log.d("!@#","Update uri");
         int rowsUpdated = 0;
         switch (match){
             case INVITEE_TABLE:
                 rowsUpdated = helper.getWritableDatabase().update(helper.Invitees_Table,values,selection,selectionArgs);
                 break;
             case POST_TABLE:
+                Log.d("!@#","Updating");
                 rowsUpdated = helper.getWritableDatabase().update(helper.Post_Table,values,selection,selectionArgs);
                 break;
             case COMMENTS_TABLE:

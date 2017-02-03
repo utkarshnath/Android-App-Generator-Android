@@ -14,6 +14,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".Application.Application"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -45,19 +46,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
+        <activity android:name=".LoginActivity"></activity>
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="168e1fc39cd1ace6ab047b7109d082694915b6ca" />
 
         <activity android:name=".SignUp"></activity>
+
+        <provider
+            android:name=".Helpers.DataProvider"
+            android:authorities="com.developer.sparsh.baseapplication.Helpers" />
     </application>
 
 </manifest>

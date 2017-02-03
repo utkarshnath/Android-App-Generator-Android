@@ -50,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String Replies_Comment_Id = "Replies_Comment_Id";
 
 
-    public static int version = 1;
+    public static int version = 2;
 
     public DatabaseHelper(Context context) {
         super(context,Database_Name, null, version);
