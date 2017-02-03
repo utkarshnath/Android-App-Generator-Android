@@ -206,7 +206,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 params.put("type","LOCAL");
                 return params;
             }
-
         };
         requestQueue.add(stringRequest);
     }

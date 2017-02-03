@@ -3,6 +3,7 @@ package com.developer.sparsh.baseapplication.Adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
+import com.developer.sparsh.baseapplication.Helpers.DatabaseHelper;
 import com.developer.sparsh.baseapplication.R;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 
 /**
  * Created by SPARSH on 1/27/2017.
@@ -18,14 +23,20 @@ import com.developer.sparsh.baseapplication.R;
 
 public class FeedCursorAdapter extends CursorRecyclerViewAdapter<FeedCursorAdapter.VH> {
 
+    Context context;
+    DatabaseHelper helper;
     public FeedCursorAdapter(Context context, Cursor mCursor) {
         super(context, mCursor);
+        this.context = context;
+        helper = new DatabaseHelper(context);
     }
 
     @Override
     public void onBindViewHolder(VH viewHolder, Cursor cursor) {
-        // implement bind view holder
-
+        viewHolder.description.setText(cursor.getString(cursor.getColumnIndex(helper.Post_Discription)));
+        String pictureUri = cursor.getString(cursor.getColumnIndex(helper.Post_File_Url));
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.displayImage(pictureUri, viewHolder.uploadedPhoto);
     }
 
 

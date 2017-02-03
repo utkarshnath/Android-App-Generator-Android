@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,11 +56,8 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     }
 
     public Cursor swapCursor(Cursor newCursor) {
+        Log.d("!@#", "swapCursor: cursor swapped");
         final Cursor oldCursor = newCursor;
-
-        if (newCursor == mCursor) {
-            return null;
-        }
 
         mCursor = newCursor;
         notifyDataSetChanged();
