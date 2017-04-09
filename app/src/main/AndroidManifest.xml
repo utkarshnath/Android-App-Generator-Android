@@ -3,18 +3,21 @@
     package="com.developer.sparsh.baseapplication">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-feature android:name="android.hardware.camera"
+
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="true" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"  />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
-        android:allowBackup="true"
         android:name=".Application.Application"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -39,24 +42,30 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" >
+        <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".LoginActivity" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="168e1fc39cd1ace6ab047b7109d082694915b6ca" />
+
+        <activity android:name=".SignUp" />
+
+        <provider
+            android:name=".Helpers.DataProvider"
+            android:authorities="com.developer.sparsh.baseapplication.Helpers" />
+
+        <activity
+            android:name=".InviteActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"></activity>
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="168e1fc39cd1ace6ab047b7109d082694915b6ca" />
-
-        <activity android:name=".SignUp"></activity>
-
-        <provider
-            android:name=".Helpers.DataProvider"
-            android:authorities="com.developer.sparsh.baseapplication.Helpers" />
     </application>
 
 </manifest>

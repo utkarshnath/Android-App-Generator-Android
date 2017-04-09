@@ -2,16 +2,12 @@ package com.developer.sparsh.baseapplication.Fragments;
 
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.renderscript.Sampler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,8 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -31,15 +25,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.developer.sparsh.baseapplication.Adapters.FeedAdapter;
 import com.developer.sparsh.baseapplication.Adapters.FeedCursorAdapter;
 import com.developer.sparsh.baseapplication.Helpers.DatabaseContract;
 import com.developer.sparsh.baseapplication.Helpers.DatabaseHelper;
 import com.developer.sparsh.baseapplication.Interface.FileUpload;
 import com.developer.sparsh.baseapplication.R;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.thin.downloadmanager.DefaultRetryPolicy;
 import com.thin.downloadmanager.DownloadRequest;
 import com.thin.downloadmanager.DownloadStatusListener;
@@ -50,14 +40,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
