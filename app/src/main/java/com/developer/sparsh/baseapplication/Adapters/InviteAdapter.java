@@ -37,6 +37,7 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.MyViewHold
         return new MyViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         holder.name.setText(adminContacts.get(position).getName());
@@ -44,27 +45,6 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.MyViewHold
         TextDrawable drawable = drawableBuilder.build(String.valueOf(adminContacts.get(position).getName().charAt(0)), colorGenerator.getColor(adminContacts.get(position).getName()));
         holder.imageView.setImageDrawable(drawable);
         holder.linearLayout.setBackgroundColor(adminContacts.get(position).isSelected() ? Color.CYAN : Color.WHITE);
-        holder.linearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("Selected",position+"");
-                if(adminContacts.get(position).isSelected()){
-                    Log.d("Selected","fggf");
-                    adminContacts.get(position).setSelected(false);
-                    holder.linearLayout.setBackgroundColor(Color.WHITE);
-                }else{
-                    adminContacts.get(position).setSelected(true);
-                    Log.d("Selected","lkkl");
-                    holder.linearLayout.setBackgroundColor(Color.CYAN);
-                }
-//                adminContacts.get(position).setSelected(!adminContacts.get(position).isSelected);
-//                holder.linearLayout.setBackgroundColor(adminContacts.get(position).isSelected ? Color.CYAN : Color.WHITE);
-                int count = 0;
-                for (int i = 0; i < adminContacts.size(); i++) {
-                    Log.d("Selected",i+" "+ adminContacts.get(position).isSelected());
-                }
-            }
-        });
     }
 
     @Override
@@ -86,6 +66,29 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.MyViewHold
             contact = (TextView) itemView.findViewById(R.id.contact_info);
             imageView = (ImageView) itemView.findViewById(R.id.contact_icon);
             linearLayout = (LinearLayout) itemView.findViewById((R.id.contact_linearlayout));
+
+            linearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    Log.d("Selected",position+"");
+                    if(adminContacts.get(position).isSelected()){
+                        Log.d("Selected","fggf");
+                        adminContacts.get(position).setSelected(false);
+                        linearLayout.setBackgroundColor(Color.WHITE);
+                    }else{
+                        adminContacts.get(position).setSelected(true);
+                        Log.d("Selected","lkkl");
+                        linearLayout.setBackgroundColor(Color.CYAN);
+                    }
+//                adminContacts.get(position).setSelected(!adminContacts.get(position).isSelected);
+//                holder.linearLayout.setBackgroundColor(adminContacts.get(position).isSelected ? Color.CYAN : Color.WHITE);
+                    int count = 0;
+                    for (int i = 0; i < adminContacts.size(); i++) {
+                        Log.d("Selected",i+" "+ adminContacts.get(position).isSelected());
+                    }
+                }
+            });
         }
     }
 }
