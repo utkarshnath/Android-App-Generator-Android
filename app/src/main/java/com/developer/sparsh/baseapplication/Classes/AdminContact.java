@@ -10,6 +10,13 @@ public class AdminContact {
     private String email;
     private boolean isSelected;
 
+    public AdminContact() {
+        this.name = null;
+        this.number = null;
+        this.email = null;
+        isSelected = false;
+    }
+
     public AdminContact(String name, String number, String email){
         this.name = name;
         this.number = number;

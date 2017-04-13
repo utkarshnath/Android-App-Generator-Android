@@ -85,8 +85,11 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.MyViewHold
 //                holder.linearLayout.setBackgroundColor(adminContacts.get(position).isSelected ? Color.CYAN : Color.WHITE);
                     int count = 0;
                     for (int i = 0; i < adminContacts.size(); i++) {
-                        Log.d("Selected",i+" "+ adminContacts.get(position).isSelected());
+                        if(adminContacts.get(i).isSelected()){
+                            count++;
+                        }
                     }
+                    Log.d("!!@Selected",count+"");
                 }
             });
         }
